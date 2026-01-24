@@ -4,21 +4,21 @@
 
 This project automates daily ETH purchases using a Dollar Cost Averaging (DCA) strategy. It places a $10 USDC buy order for ETH daily, optimized for maker fees, and runs automatically via AWS Lambda.
 
-## 🚀 Quick Start
+##  Quick Start
 
 **Want to deploy this automation?** See [QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md) for deployment instructions.
 
 **Want to understand the project?** See [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) for a comprehensive overview.
 
-## ✨ Key Features
+##  Key Features
 
-- 🤖 **Automated Daily Execution**: Runs automatically via AWS Lambda and EventBridge
-- 💰 **Dollar Cost Averaging**: Consistent $10 USDC purchases regardless of market conditions
-- 📉 **Maker Fee Optimization**: Places limit orders at 0.998x market price for lower fees
-- 🛡️ **Safety Features**: Balance checking, duplicate prevention, and automatic order cleanup
-- 📊 **Comprehensive Logging**: All actions logged to CloudWatch for monitoring
+-  **Automated Daily Execution**: Runs automatically via AWS Lambda and EventBridge
+-  **Dollar Cost Averaging**: Consistent $10 USDC purchases regardless of market conditions
+-  **Maker Fee Optimization**: Places limit orders at 0.998x market price for lower fees
+-  **Safety Features**: Balance checking, duplicate prevention, and automatic order cleanup
+-  **Comprehensive Logging**: All actions logged to CloudWatch for monitoring
 
-## 📋 What This Project Does
+##  What This Project Does
 
 1. **Daily Execution**: Triggers automatically at a scheduled time (configurable)
 2. **Balance Check**: Verifies sufficient USDC balance before trading
@@ -30,7 +30,7 @@ This project automates daily ETH purchases using a Dollar Cost Averaging (DCA) s
 
 ---
 
-## 📚 Original Package Documentation
+##  Original Package Documentation
 
 This project is based on the unofficial Python client for the Coinbase Advanced Trade API. The original package allows users to interact with the API to manage their cryptocurrency trading activities on the Coinbase platform.
 
@@ -307,7 +307,7 @@ This will:
 
 You can create custom strategies by modifying the `execute_strategy` method in the `AlphaSquaredTrader` class. This allows you to define specific trading logic based on the risk levels provided by AlphaSquared.
 
-## 🚀 AWS Lambda Deployment
+##  AWS Lambda Deployment
 
 This project is designed to run on AWS Lambda for automated daily execution.
 
@@ -370,7 +370,7 @@ For more information about the Coinbase Advanced Trader API, consult the [offici
 
 This project is licensed under the MIT License. See the LICENSE file for more information.
 
-## 📖 Additional Resources
+##  Additional Resources
 
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project overview
 - **[QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md)**: Quick deployment guide
