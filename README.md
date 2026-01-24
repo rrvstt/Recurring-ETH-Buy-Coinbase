@@ -1,6 +1,38 @@
-# Coinbase Advanced Trade API Python Client
+# Recurring ETH Buy - Coinbase Automation
 
-This is the unofficial Python client for the Coinbase Advanced Trade API. It allows users to interact with the API to manage their cryptocurrency trading activities on the Coinbase platform.
+**Automated daily Ethereum (ETH) purchases on Coinbase Advanced Trade using AWS Lambda**
+
+This project automates daily ETH purchases using a Dollar Cost Averaging (DCA) strategy. It places a $10 USDC buy order for ETH daily, optimized for maker fees, and runs automatically via AWS Lambda.
+
+## 🚀 Quick Start
+
+**Want to deploy this automation?** See [QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md) for deployment instructions.
+
+**Want to understand the project?** See [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) for a comprehensive overview.
+
+## ✨ Key Features
+
+- 🤖 **Automated Daily Execution**: Runs automatically via AWS Lambda and EventBridge
+- 💰 **Dollar Cost Averaging**: Consistent $10 USDC purchases regardless of market conditions
+- 📉 **Maker Fee Optimization**: Places limit orders at 0.998x market price for lower fees
+- 🛡️ **Safety Features**: Balance checking, duplicate prevention, and automatic order cleanup
+- 📊 **Comprehensive Logging**: All actions logged to CloudWatch for monitoring
+
+## 📋 What This Project Does
+
+1. **Daily Execution**: Triggers automatically at a scheduled time (configurable)
+2. **Balance Check**: Verifies sufficient USDC balance before trading
+3. **Duplicate Prevention**: Prevents multiple orders on the same day
+4. **Order Management**: Cancels unfilled orders older than 20 hours
+5. **Smart Order Placement**:
+   - Places limit orders at 0.998x market price (maker fees) when possible
+   - Falls back to market orders if old orders are cancelled (ensures daily execution)
+
+---
+
+## 📚 Original Package Documentation
+
+This project is based on the unofficial Python client for the Coinbase Advanced Trade API. The original package allows users to interact with the API to manage their cryptocurrency trading activities on the Coinbase platform.
 
 ## Features
 
@@ -275,14 +307,60 @@ This will:
 
 You can create custom strategies by modifying the `execute_strategy` method in the `AlphaSquaredTrader` class. This allows you to define specific trading logic based on the risk levels provided by AlphaSquared.
 
-## AWS Lambda Compatibility
+## 🚀 AWS Lambda Deployment
 
-When using this package in AWS Lambda, ensure your Lambda function is configured to use Python 3.12. The cryptography binaries in the Lambda layer are compiled for Python 3.12, and using a different Python runtime version will result in compatibility issues.
+This project is designed to run on AWS Lambda for automated daily execution.
+
+### Quick Deployment
+
+See [QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md) for step-by-step deployment instructions.
+
+### Detailed Documentation
+
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project overview and architecture
+- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Detailed deployment guide with troubleshooting
+- **[IMPROVEMENTS.md](IMPROVEMENTS.md)**: Feature documentation and improvements
+- **[FIX_CRYPTOGRAPHY_ERROR.md](FIX_CRYPTOGRAPHY_ERROR.md)**: Troubleshooting cryptography issues
+
+### Lambda Configuration
+
+- **Runtime**: Python 3.11
+- **Memory**: 256 MB
+- **Timeout**: 60 seconds
+- **Trigger**: EventBridge (CloudWatch Events) - Daily schedule
+
+### Environment Variables
+
+Required environment variables for Lambda:
+```
+COINBASE_API_KEY=your_api_key
+COINBASE_API_SECRET=your_api_secret
+PRODUCT_ID=ETH-USDC
+FIAT_AMOUNT=10
+PRICE_MULTIPLIER=0.998
+POST_ONLY=true
+CHECK_BALANCE=true
+CHECK_DUPLICATES=true
+```
+
+### Building for Lambda
+
+Use the Docker build script for Linux-compatible packages:
+```powershell
+.\build-lambda-package-docker.ps1
+```
+
+This creates `lambda-deployment.zip` ready for upload to AWS Lambda.
+
+### AWS Lambda Compatibility Notes
+
+When using this package in AWS Lambda, ensure your Lambda function is configured to use Python 3.11. The Docker build script ensures Linux-compatible binaries are included.
 
 To configure your Lambda function:
-1. Set the runtime to Python 3.12
-2. Use the provided Lambda layer from the latest release
-3. If building custom layers, ensure they are built using the same Python version as the Lambda runtime.
+1. Set the runtime to Python 3.11
+2. Upload the `lambda-deployment.zip` file
+3. Configure environment variables
+4. Set up EventBridge trigger for daily execution
 
 ## Documentation
 
@@ -292,10 +370,16 @@ For more information about the Coinbase Advanced Trader API, consult the [offici
 
 This project is licensed under the MIT License. See the LICENSE file for more information.
 
-## Author
+## 📖 Additional Resources
 
-Rhett Reisman
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project overview
+- **[QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md)**: Quick deployment guide
+- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Detailed deployment instructions
+- **[IMPROVEMENTS.md](IMPROVEMENTS.md)**: Feature documentation
 
+## Original Author
+
+Rhett Reisman - Original Coinbase Advanced Trade Python Client
 
 GitHub: https://github.com/rhettre/coinbase-advancedtrade-python
 
